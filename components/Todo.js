@@ -33,29 +33,28 @@ export default function Todo() {
       onPress={() => handleOnPress()}
       onLongPress={() => toggleEditing()}  
     >
-        <View style={[styles.checkboxBase, isChecked && styles.checkboxChecked]}>
-          {isChecked ? <FontAwesome name="check" /> : ''}
-        </View>
-        
-          <TextInput
-            ref={inputRef}
-            style={[styles.labelText, styles.inputText, !isEditing && styles.hidden]}
-            onChangeText={setText}
-            onSubmitEditing={() => setEditing(false)}
-            value={text}
-            onBlur={() => setEditing(false)}
-          />
-        
-          <Text
-            style={[
-              styles.labelText,
-              isChecked && styles.labelTextChecked,
-              isEditing && styles.hidden
-            ]}
-          >
-            {text}
-          </Text>
-        
+      <View style={[styles.checkboxBase, isChecked && styles.checkboxChecked]}>
+        {isChecked ? <FontAwesome name="check" /> : ''}
+      </View>
+      
+      <TextInput
+        ref={inputRef}
+        style={[styles.labelText, styles.inputText, !isEditing && styles.hidden]}
+        onChangeText={setText}
+        onSubmitEditing={() => setEditing(false)}
+        value={text}
+        onBlur={() => setEditing(false)}
+      />
+    
+      <Text
+        style={[
+          styles.labelText,
+          isChecked && styles.labelTextChecked,
+          isEditing && styles.hidden
+        ]}
+      >
+        {text}
+      </Text>
     </Pressable>
   )
 }
