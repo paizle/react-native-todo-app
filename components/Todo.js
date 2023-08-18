@@ -1,16 +1,15 @@
 import React, {useState, useRef} from 'react'
+import PropTypes from 'prop-types'
 import { StyleSheet, Pressable, View, Text, TextInput } from 'react-native'
 import { FontAwesome } from '@expo/vector-icons';
 
-export default function Todo() {
+export default function Todo(props) {
+
+  const [todo, setTodo] = useState({...props.todo})
 
   const inputRef = useRef(null)
 
-  const [isChecked, setChecked] = useState(false)
-
   const [isEditing, setEditing] = useState(false)
-
-  const [text, setText] = useState('a todo')
 
   const toggleEditing = () => {
     if (!isEditing) {
@@ -23,7 +22,18 @@ export default function Todo() {
     if (isEditing) {
       inputRef.current.focus()
     } else {
-      setChecked(!isChecked)
+      setTodo({...todo, ...{done: !todo.done}})
+    }
+  }
+
+  const handleOnChangeText = (value) => {
+    setTodo({...todo, ...{text: value}})
+  }
+
+  const updateTodo = () => {
+    setEditing(false)
+    if (todo.text) {
+      props.updateTodo(todo)
     }
   }
 
@@ -33,27 +43,28 @@ export default function Todo() {
       onPress={() => handleOnPress()}
       onLongPress={() => toggleEditing()}  
     >
-      <View style={[styles.checkboxBase, isChecked && styles.checkboxChecked]}>
-        {isChecked ? <FontAwesome name="check" /> : ''}
+      <View style={[styles.checkbox, todo.done && styles.checkboxChecked]}>
+        {todo.done ? <FontAwesome name="check" /> : ''}
       </View>
       
       <TextInput
         ref={inputRef}
         style={[styles.labelText, styles.inputText, !isEditing && styles.hidden]}
-        onChangeText={setText}
-        onSubmitEditing={() => setEditing(false)}
-        value={text}
+        onChangeText={handleOnChangeText}
+        onSubmitEditing={() => updateTodo()}
+        value={todo.text}
         onBlur={() => setEditing(false)}
+        placeholder="Enter text..."
       />
     
       <Text
         style={[
           styles.labelText,
-          isChecked && styles.labelTextChecked,
+          todo.done && styles.labelTextChecked,
           isEditing && styles.hidden
         ]}
       >
-        {text}
+        {todo.text || 'Enter text...'}
       </Text>
     </Pressable>
   )
@@ -69,7 +80,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 4
   },
-  checkboxBase: {
+  checkbox: {
     width: 24,
     height: 24,
     justifyContent: 'center',
@@ -95,3 +106,12 @@ const styles = StyleSheet.create({
     display: 'none'
   }
 });
+
+Todo.propTypes = {
+  todo: PropTypes.shape({
+    date: PropTypes.string,
+    done: PropTypes.bool,
+    description: PropTypes.string
+  }),
+  setTodo: PropTypes.func
+}

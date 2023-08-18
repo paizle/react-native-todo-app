@@ -1,36 +1,118 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, Pressable } from 'react-native';
+import { StyleSheet, View, ScrollView, Text} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { FontAwesome5 } from '@expo/vector-icons'; 
+
+import Header from './components/Header'
+import CalendarNavigation from './components/CalendarNavigation';
+import HelpModal from './components/HelpModal';
+import DatePickerModal from './components/DatePickerModal';
+
+import {loadTodos, saveTodos} from './util/storage';
+import formatDateToString from './util/dateStringFormat';
 
 import Todo from './components/Todo';
 
+function createNewTodo() {
+  return {
+    date: new Date().toString(),
+    done: false,
+    text: '',
+  }
+}
+
 export default function App() {
 
-  const [todos, setTodos] = React.useState([])
+  const [todos, setTodos] = useState(null)
 
-  const addTodo = () => {
-    setTodos((todos) => [...todos, {}])
+  const [currentTodo, setCurrentTodo] = useState(createNewTodo())
+
+  const [isHelpVisible, setIsHelpVisible] = useState(false)
+
+  const [isCalendarVisible, setIsCalendarVisible] = useState(false)
+
+  const [selectedDate, setSelectedDate] = useState(new Date())
+
+  useEffect(() => {
+    if (selectedDate) {
+      const dateString = formatDateToString(selectedDate)
+      loadTodos(dateString)
+        .then((loadedTodos) => {
+          if (loadedTodos) {
+            setTodos(loadedTodos)
+          } else {
+            setTodos([])
+          }
+        })
+    }
+  }, [selectedDate])
+
+  useEffect(() => {
+    if (!currentTodo) {
+      setCurrentTodo(createNewTodo())
+    }
+  }, [currentTodo])
+
+  const updateNewTodo = (todo) => {
+    setCurrentTodo(null)
+    const newTodos = [...todos, todo]
+    setTodos(newTodos)
+    saveTodos(formatDateToString(selectedDate), newTodos)
+  }
+
+  const updateTodo = index => todo => {
+    const todosCopy = [...todos]
+    todosCopy[index] = todo
+    setTodos(todosCopy)
+    saveTodos(formatDateToString(selectedDate), todosCopy)
   }
 
   return (
     <SafeAreaProvider>
-       <SafeAreaView style={styles.appContainer}>
-        <View style={styles.menu}>
-          <Text style={styles.heading}>React Native To Do App</Text>
-          <FontAwesome5 name="question-circle" size={18} />
-        </View>
-        <View style={styles.todoList}>
-          {todos.map((todo, index) => <Todo key={index} />)}
-        </View>
-        <Pressable 
-          style={styles.actions}
-          onPress={() => addTodo()}
+      <SafeAreaView style={styles.appContainer}>
+
+        <Header setIsHelpVisible={setIsHelpVisible} />
+
+        <CalendarNavigation
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          setIsCalendarVisible={setIsCalendarVisible}
+        />
+
+        <ScrollView 
+          style={styles.todoList} 
         >
-          <FontAwesome5 name="plus-circle" size={32} color="white" style={{padding: 12}} />
-          <Text style={[styles.heading, {color: 'white'}]}>Add</Text>
-        </Pressable>
+          {todos?.length 
+            ? todos.map((todo, index) => (
+                <Todo 
+                  key={todo.date}
+                  todo={todo}
+                  updateTodo={updateTodo(index)} 
+                />  
+            ))
+            : <Text style={styles.heading}>no todos</Text>
+          }
+          {}
+        </ScrollView>
+
+        <View>
+          {currentTodo && <Todo todo={currentTodo} updateTodo={updateNewTodo} />}
+        </View>
+
+        <DatePickerModal 
+          isCalendarVisible={isCalendarVisible} 
+          setIsCalendarVisible={setIsCalendarVisible} 
+          selectedDate={selectedDate} 
+          setSelectedDate={setSelectedDate} 
+          styles={styles}
+        />
+
+        <HelpModal 
+          isHelpVisible={isHelpVisible}
+          setIsHelpVisible={setIsHelpVisible}
+          styles={styles}
+        />
+
         <StatusBar style="auto" />
       </SafeAreaView>
     </SafeAreaProvider>
@@ -43,35 +125,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexDirection: 'column',
     backgroundColor: '#FEF9B0',
-    padding: 8
-  },
-  menu: {
-    flexBasis: 80,
-    flexShrink: 0,
-    flexGrow: 0,
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    padding: 16,
   },
   heading: {
     fontSize: 20,
     fontWeight: '700',
   },
   todoList: {
-    flexGrow: 1,
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-  actions: {
-    display: 'flex',
-    flexDirection: 'row',
-    height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#64b2e5',
-    fontSize: 20,
-    borderRadius: 4
-  }
 });
