@@ -1,8 +1,9 @@
-import React from "react";
-import { StyleSheet, View, Text } from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons'; 
+import React from 'react'
+import PropTypes from 'prop-types'
+import { StyleSheet, View, Text } from 'react-native'
+import { FontAwesome5 } from '@expo/vector-icons'
 
-const Header = ({setIsHelpVisible}) => {
+export default function Header({ setIsHelpVisible }) {
   return (
     <View style={styles.menu}>
       <Text style={styles.heading}>React Native To Do App</Text>
@@ -25,7 +26,9 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 20,
     fontWeight: '700',
-  }})
+  },
+})
 
-
-export default Header
+Header.propTypes = {
+  setIsHelpVisible: PropTypes.bool.isRequired,
+}

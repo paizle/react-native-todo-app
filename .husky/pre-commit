@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+eslint -c .eslintrc-pre-commit.js .
+npm run format && git add -A .

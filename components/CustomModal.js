@@ -1,27 +1,35 @@
-import React from "react"
-import { StyleSheet, View, Text, Pressable, Modal} from 'react-native'
-import { FontAwesome5 } from '@expo/vector-icons'; 
+import React from 'react'
+import PropTypes from 'prop-types'
+import { StyleSheet, View, Text, Pressable, Modal } from 'react-native'
+import { FontAwesome5 } from '@expo/vector-icons'
 
-const CustomModal = (props) => {
+export default function CustomModal(props) {
+  const { title, onRequestClose, children } = props
   return (
-    <Modal 
-      {...props} 
-      animationType="slide"
-    >
-      <View style={styles.modalHeader}>
-        <Text style={styles.heading}>{props.title}</Text>
-        <Pressable onPress={() => props.onRequestClose()}>
-          <FontAwesome5 name="window-close" size={32} color="black" style={{padding: 12}} />
-        </Pressable>
-      </View>
-      <View style={styles.modalBody}>
-        {props.children}
+    <Modal {...props} animationType="slide">
+      <View style={styles.modal}>
+        <View style={styles.modalHeader}>
+          <Text style={styles.heading}>{title}</Text>
+          <Pressable onPress={() => onRequestClose()}>
+            <FontAwesome5
+              name="window-close"
+              size={32}
+              color="black"
+              style={{ padding: 12 }}
+            />
+          </Pressable>
+        </View>
+        <View style={styles.modalBody}>{children}</View>
       </View>
     </Modal>
   )
 }
 
 const styles = StyleSheet.create({
+  modal: {
+    flex: 1,
+    backgroundColor: '#f0f0f0',
+  },
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -33,8 +41,15 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   modalBody: {
-    padding: 8
-  }
+    padding: 8,
+  },
 })
 
-export default CustomModal
+CustomModal.propTypes = {
+  title: PropTypes.string.isRequired,
+  onRequestClose: PropTypes.func.isRequired,
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]).isRequired,
+}
