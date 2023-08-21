@@ -30,5 +30,5 @@ const styles = StyleSheet.create({
 })
 
 Header.propTypes = {
-  setIsHelpVisible: PropTypes.bool.isRequired,
+  setIsHelpVisible: PropTypes.func.isRequired,
 }
